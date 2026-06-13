@@ -1,0 +1,174 @@
+:root {
+  --bg: #222b36;
+  --bg-soft: #2b3643;
+  --fg: #f3f5f7;
+  --fg-dim: #9fb0c0;
+  --accent: #ff5252;
+  --accent-on: #2ecc71;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  width: 280px;
+  margin: 0;
+  font-family: -apple-system, "Segoe UI", "Hiragino Kaku Gothic ProN",
+    "Yu Gothic UI", Meiryo, sans-serif;
+  background: var(--bg);
+  color: var(--fg);
+  -webkit-font-smoothing: antialiased;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.logo {
+  border-radius: 6px;
+  flex: none;
+}
+
+.title {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0;
+}
+
+/* --- ON/OFF 行 --- */
+.toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+}
+
+.toggle-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--fg-dim);
+  flex: none;
+}
+
+.status-dot.on {
+  background: var(--accent-on);
+  box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.2);
+}
+
+.status-dot.off {
+  background: var(--fg-dim);
+}
+
+/* トグルスイッチ */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 46px;
+  height: 26px;
+  flex: none;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  inset: 0;
+  background: #4a5662;
+  border-radius: 26px;
+  transition: background 0.2s;
+}
+
+.slider::before {
+  content: "";
+  position: absolute;
+  height: 20px;
+  width: 20px;
+  left: 3px;
+  top: 3px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform 0.2s;
+}
+
+.switch input:checked + .slider {
+  background: var(--accent-on);
+}
+
+.switch input:checked + .slider::before {
+  transform: translateX(20px);
+}
+
+/* --- 統計 --- */
+.stats {
+  display: flex;
+  gap: 10px;
+  padding: 0 16px 8px;
+}
+
+.stat {
+  flex: 1;
+  background: var(--bg-soft);
+  border-radius: 10px;
+  padding: 12px;
+  text-align: center;
+}
+
+.stat-value {
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.stat-label {
+  margin-top: 4px;
+  font-size: 11px;
+  color: var(--fg-dim);
+}
+
+/* --- フッター --- */
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 12px 16px 16px;
+}
+
+.link-btn {
+  background: none;
+  border: none;
+  color: var(--accent);
+  font-size: 12px;
+  cursor: pointer;
+  padding: 0;
+}
+
+.link-btn:hover {
+  text-decoration: underline;
+}
+
+.hint {
+  font-size: 10px;
+  color: var(--fg-dim);
+  text-align: right;
+  line-height: 1.3;
+}

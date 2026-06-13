@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>かんたん広告ブロッカー</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <header class="header">
+      <img class="logo" src="icons/icon48.png" alt="" width="28" height="28" />
+      <h1 class="title">かんたん広告ブロッカー</h1>
+    </header>
+
+    <section class="toggle-row">
+      <div class="toggle-label">
+        <span class="status-dot" id="statusDot"></span>
+        <span id="statusText">読み込み中…</span>
+      </div>
+      <label class="switch" title="広告ブロックの有効/無効">
+        <input type="checkbox" id="toggle" />
+        <span class="slider"></span>
+      </label>
+    </section>
+
+    <section class="stats">
+      <div class="stat">
+        <div class="stat-value" id="tabCount">0</div>
+        <div class="stat-label">このタブ</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value" id="totalCount">0</div>
+        <div class="stat-label">累計ブロック</div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <button id="reset" class="link-btn">累計をリセット</button>
+      <span class="hint">変更後はページを再読み込みしてください</span>
+    </footer>
+
+    <script src="popup.js"></script>
+  </body>
+</html>
