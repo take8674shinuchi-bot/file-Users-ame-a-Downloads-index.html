@@ -6,7 +6,7 @@
 # name は Cloudflare 側の Worker サービス名に一致させること
 # （GitHub 連携のビルド "Workers Builds: file-users-ame-a-downloads-index" 用）。
 
-name = "file-users-ame-a-downloads-index"
+name = "cafe-hp"
 compatibility_date = "2025-01-01"
 
 [assets]
