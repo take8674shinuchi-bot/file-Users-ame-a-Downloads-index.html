@@ -18,6 +18,7 @@ OUT = os.path.join(ROOT, "public", "downloads", "kantan-ad-blocker.zip")
 FILES = [
     "manifest.json",
     "rules.json",
+    "content.css",
     "background.js",
     "popup.html",
     "popup.css",
