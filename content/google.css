@@ -1,0 +1,26 @@
+/* かんたん広告ブロッカー - Google 検索ページの広告枠を隠すスタイル
+ *
+ * これらのルールは <html> に "eab-on" クラスが付いている間だけ効く。
+ * クラスの付け外しは content/google.js が ON/OFF と連動して行うため、
+ * 拡張機能を OFF にすると広告は元どおり表示される。
+ *
+ * Google 検索の「スポンサー / 広告」枠は google.com 自身から配信されるため
+ * 通信ブロック(rules.json)では消せない。ここでは表示側で非表示にする。
+ */
+
+/* 検索結果ページ上部・下部のテキスト広告ブロック */
+html.eab-on #tads,
+html.eab-on #tadsb,
+html.eab-on #bottomads,
+/* 商品リスティング(ショッピング)広告 */
+html.eab-on .commercial-unit-desktop-top,
+html.eab-on .commercial-unit-desktop-rhs,
+html.eab-on #rhs .cu-container,
+html.eab-on .pla-unit,
+html.eab-on .pla-unit-container,
+/* Google がテキスト広告ブロックに付与する目印 */
+html.eab-on [data-text-ad],
+/* JS が「スポンサー」ラベルから広告と判定したブロック */
+html.eab-on .eab-hidden-ad {
+  display: none !important;
+}

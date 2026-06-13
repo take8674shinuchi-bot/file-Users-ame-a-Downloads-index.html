@@ -7,6 +7,7 @@ Manifest V3 の [`declarativeNetRequest`](https://developer.chrome.com/docs/exte
 - ツールバーのアイコンから ワンクリックで ON / OFF
 - バッジに「そのタブでブロックした数」、ポップアップに「累計ブロック数」を表示
 - グローバル＋日本国内の主要な広告／計測ネットワーク 100 件以上をカバー
+- **Google 検索のスポンサー枠（検索結果ページに直接埋め込まれる広告）も非表示**にします
 
 ---
 
@@ -41,6 +42,7 @@ Manifest V3 の [`declarativeNetRequest`](https://developer.chrome.com/docs/exte
 | `manifest.json` | 拡張機能の定義（MV3） |
 | `rules.json` | ブロック対象のルール（`declarativeNetRequest` 形式・自動生成） |
 | `background.js` | ON/OFF 切り替え・バッジ表示・累計集計を行う Service Worker |
+| `content/google.js` / `content/google.css` | Google 検索ページの広告枠を隠すコンテンツスクリプト |
 | `popup.html` / `popup.css` / `popup.js` | アイコンクリックで開く操作パネル |
 | `icons/` | アイコン画像（16/32/48/128px） |
 | `tools/make_rules.py` | `rules.json` を生成するスクリプト |
@@ -48,6 +50,18 @@ Manifest V3 の [`declarativeNetRequest`](https://developer.chrome.com/docs/exte
 
 ページの最上位の表示（`main_frame`）はブロック対象から外しているため、
 広告ドメインが原因でページ全体が真っ白になることはありません。
+
+### Google 検索の広告について
+
+Google 検索結果ページの「スポンサー / 広告」枠は、`google.com` 自身（検索結果と
+同じサーバー）から配信されるため、通信を遮断する `rules.json` では消せません。
+そこで `content/google.js` が、検索ページ上で広告枠の要素を見つけて隠します
+（要素非表示＝コスメティックフィルタ）。ON/OFF スイッチと連動し、OFF にすると
+広告は元どおり表示されます。
+
+このため拡張機能には「Google 検索ページのデータの読み取り・変更」の権限が付きます
+（対象は `*.google.*` の `/search` ページのみ。Gmail やドライブなど他の Google
+サービスでは動作しません）。スクリプトはページ内で完結し、外部送信は行いません。
 
 ---
 
@@ -116,7 +130,14 @@ python3 tools/make_zip.py
 
 ## 注意
 
-- 本拡張機能はドメイン単位のブロックリスト方式です。uBlock Origin のような
-  高度な要素非表示（コスメティックフィルタ）は行いません。
+- 基本はドメイン単位のブロックリスト方式です。要素非表示（コスメティックフィルタ）は
+  Google 検索のスポンサー枠に限って行います。uBlock Origin のように、あらゆるサイトの
+  広告要素を網羅的に隠すわけではありません。
+- Google の広告枠は仕様変更が多く、`content/google.css` のセレクタや
+  `content/google.js` の判定が追従できないと一部が残る場合があります。その際は
+  これらのファイルを調整してください。対応する Google のドメイン（国別 TLD）は
+  `manifest.json` の `content_scripts.matches` に追記できます。
+- **YouTube などの動画内に挿入される広告はブロックしません**（動画と同じ経路で
+  配信されるため、本方式では対応できません）。
 - ブロックリストは主要なネットワークを対象にした軽量版です。網羅性を求める場合は
   `tools/make_rules.py` にドメインを追加してご利用ください。
