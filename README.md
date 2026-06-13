@@ -81,6 +81,39 @@ python3 tools/make_icons.py
 
 ---
 
+## Cloudflare Workers での公開（ランディングページ）
+
+拡張機能の紹介とダウンロードができる静的サイトを `public/` に同梱しており、
+Cloudflare Workers の静的アセット配信としてそのまま公開できます。
+
+| ファイル | 役割 |
+| --- | --- |
+| `public/index.html` | 紹介＆ダウンロード用ランディングページ |
+| `public/downloads/kantan-ad-blocker.zip` | 配布用の拡張機能 ZIP（`tools/make_zip.py` で生成） |
+| `wrangler.toml` | Cloudflare Workers 設定（`public/` をアセット配信） |
+| `package.json` | `wrangler deploy` 用の最小構成 |
+
+GitHub 連携（Workers Builds）が設定済みの場合、`main` への push で自動デプロイされます。
+手元から手動でデプロイする場合:
+
+```bash
+npm install
+npx wrangler deploy
+```
+
+配布 ZIP を更新したいときは、拡張機能ファイルを変更したあとに再生成します。
+
+```bash
+python3 tools/make_zip.py
+```
+
+> Cloudflare 側の Worker サービス名は `wrangler.toml` の `name` と一致させてください
+> （既定は `file-users-ame-a-downloads-index`）。別サービス名の連携が残っている場合は、
+> Cloudflare ダッシュボードの Workers → 該当サービス → Settings → Build から
+> Git 連携を解除できます。
+
+---
+
 ## 注意
 
 - 本拡張機能はドメイン単位のブロックリスト方式です。uBlock Origin のような
