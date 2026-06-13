@@ -1,0 +1,39 @@
+{
+  "manifest_version": 3,
+  "name": "かんたん広告ブロッカー",
+  "version": "1.0.0",
+  "description": "Chrome で広告やトラッカーをブロックするシンプルな拡張機能（Manifest V3 / declarativeNetRequest）。",
+  "permissions": [
+    "declarativeNetRequest",
+    "declarativeNetRequestFeedback",
+    "storage"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "かんたん広告ブロッカー",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "declarative_net_request": {
+    "rule_resources": [
+      {
+        "id": "ruleset_ads",
+        "enabled": true,
+        "path": "rules.json"
+      }
+    ]
+  }
+}
