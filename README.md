@@ -1,12 +1,13 @@
 # かんたん広告ブロッカー（Chrome 拡張機能）
 
-Chrome で Web を見るときに、広告やトラッキングをブロックするシンプルな拡張機能です。
-Manifest V3 の [`declarativeNetRequest`](https://developer.chrome.com/docs/extensions/reference/api/declarativeNetRequest) を使い、広告配信ドメインへの通信を遮断します。
+Chrome で Web を見るときに、広告やトラッキングをブロックする拡張機能です。
+Manifest V3 の [`declarativeNetRequest`](https://developer.chrome.com/docs/extensions/reference/api/declarativeNetRequest) で広告配信ドメインへの通信を遮断し、さらに広告の「枠」自体を CSS で非表示にします。
 
-- 余計な権限を要求せず、外部サーバーへも一切送信しません（すべてローカルで完結）
-- ツールバーのアイコンから ワンクリックで ON / OFF
+- **ネットワーク遮断**: [EasyList](https://easylist.to/) を採用し、約 **30,000 件**の広告／計測ドメインをブロック（国内ネットワークも統合）
+- **要素非表示**: EasyList の汎用コスメティックフィルタ約 **13,000 セレクタ**で、残った広告枠・空きスペースを非表示
+- ツールバーのアイコンから ワンクリックで ON / OFF（両方を連動して切替）
 - バッジに「そのタブでブロックした数」、ポップアップに「累計ブロック数」を表示
-- グローバル＋日本国内の主要な広告／計測ネットワーク 100 件以上をカバー
+- 収集や外部送信は一切なし。処理はすべて端末内で完結します
 
 ---
 
@@ -39,28 +40,37 @@ Manifest V3 の [`declarativeNetRequest`](https://developer.chrome.com/docs/exte
 | ファイル | 役割 |
 | --- | --- |
 | `manifest.json` | 拡張機能の定義（MV3） |
-| `rules.json` | ブロック対象のルール（`declarativeNetRequest` 形式・自動生成） |
-| `background.js` | ON/OFF 切り替え・バッジ表示・累計集計を行う Service Worker |
+| `rules.json` | ネットワーク遮断ルール（`declarativeNetRequest` 形式・自動生成） |
+| `content.css` | 広告枠を消す要素非表示スタイル（自動生成） |
+| `background.js` | ON/OFF 切り替え・CSS 注入・バッジ表示・累計集計を行う Service Worker |
 | `popup.html` / `popup.css` / `popup.js` | アイコンクリックで開く操作パネル |
 | `icons/` | アイコン画像（16/32/48/128px） |
-| `tools/make_rules.py` | `rules.json` を生成するスクリプト |
+| `tools/build_filters.py` | EasyList を取り込み `rules.json` と `content.css` を生成 |
 | `tools/make_icons.py` | アイコン PNG を生成するスクリプト |
 
 ページの最上位の表示（`main_frame`）はブロック対象から外しているため、
 広告ドメインが原因でページ全体が真っ白になることはありません。
+要素非表示の CSS は ON のときだけ全サイトに注入され、OFF にすると解除されます。
+
+> **権限について**: 要素非表示（コスメティックフィルタ）を全サイトで行うため、
+> `scripting` と「すべてのサイトへのアクセス」(`<all_urls>`) を使用します。
+> これは広告枠を消すための CSS 注入にのみ利用し、データの収集・送信は行いません。
 
 ---
 
-## ブロック対象を追加・編集する
+## ブロックリストを更新・編集する
 
-ブロックしたいドメインは `tools/make_rules.py` の `AD_DOMAINS` リストに 1 行追記して、
-スクリプトを実行すると `rules.json` が再生成されます。
+最新の EasyList を取り込んで `rules.json`（ネットワーク遮断）と `content.css`（要素非表示）を
+再生成します。独自に止めたいドメインは `tools/build_filters.py` の `CURATED_DOMAINS` に追記できます。
 
 ```bash
-python3 tools/make_rules.py
+python3 tools/build_filters.py
 ```
 
 その後、`chrome://extensions` で拡張機能の「更新（再読み込み）」ボタンを押すと反映されます。
+
+> DNR が確実に有効化できる上限（3 万件）に収めるため、キュレーション網を優先し、
+> 残り枠を EasyList で補完しています（`MAX_RULES` で調整可能）。
 
 アイコンを作り直したい場合:
 
@@ -72,9 +82,14 @@ python3 tools/make_icons.py
 
 ## うまく動かないとき
 
-- **サイトの一部が表示されない / 動かない**
-  まれにブロックが原因のことがあります。アイコンから一時的に OFF にして再読み込みし、
-  改善するなら原因ドメインを `rules.json` から外してください。
+- **サイトの一部が表示されない / 崩れる**
+  まれにネットワーク遮断や要素非表示が原因のことがあります。アイコンから一時的に
+  OFF にして再読み込みし、改善するなら原因ドメインを `rules.json` から、または
+  該当セレクタを `content.css` から外してください。
+- **YouTube などの動画の前後に出る広告（プレロール）**
+  これらはサイトと同一ドメインから配信されるため、本拡張機能では止められません。
+  バナーやおすすめ枠などの「表示広告」は非表示にします。動画広告まで対策したい場合は
+  uBlock Origin などの専用拡張機能をご利用ください。
 - **「累計ブロック」が増えない**
   累計カウントは Chrome の仕様上「デベロッパー モードで読み込んだ拡張機能」でのみ集計されます
   （`onRuleMatchedDebug` を利用）。タブごとのバッジ表示は常に動作します。
@@ -114,9 +129,23 @@ python3 tools/make_zip.py
 
 ---
 
+## クレジット / ライセンス
+
+ブロックリストは [EasyList](https://easylist.to/) を基に生成しています。
+EasyList は GPLv3 / CC BY-SA 3.0 のデュアルライセンスで提供されています。
+
+- ネットワーク遮断: EasyList（adservers / popups）
+- 要素非表示: EasyList（general hide）の汎用コスメティックフィルタ
+
 ## 注意
 
-- 本拡張機能はドメイン単位のブロックリスト方式です。uBlock Origin のような
-  高度な要素非表示（コスメティックフィルタ）は行いません。
-- ブロックリストは主要なネットワークを対象にした軽量版です。網羅性を求める場合は
-  `tools/make_rules.py` にドメインを追加してご利用ください。
+- uBlock Origin のようなスクリプトレット注入や高度な回避対策は行いません。
+  プレロール動画広告（YouTube 等）や、サイトと同一ドメインから配信される広告は
+  仕組み上ブロックできない場合があります。
+- **アダルト動画サイトなど広告が非常に多いサイト**は、独自のアダルト広告網
+  （ExoClick / TrafficStars / Adsterra / TrafficJunky 等）やポップアンダー、
+  高速に切り替わるドメイン、アンチアドブロックを多用するため、完全には消えないことがあります。
+  本拡張機能では主要なアダルト広告網を追加し、それらへのポップアンダー（新規タブ）も
+  遮断していますが、徹底するなら **uBlock Origin** ＋アダルト用フィルタの利用を推奨します。
+- 誤検知でサイトが崩れた場合は、アイコンから OFF にするか、該当ルールを
+  `rules.json` / `content.css` から削除してください。

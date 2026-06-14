@@ -1,13 +1,15 @@
 {
   "manifest_version": 3,
   "name": "かんたん広告ブロッカー",
-  "version": "1.0.0",
-  "description": "Chrome で広告やトラッカーをブロックするシンプルな拡張機能（Manifest V3 / declarativeNetRequest）。",
+  "version": "2.1.0",
+  "description": "EasyList を採用し、広告とトラッカーを強力にブロック。広告の枠も非表示にします（Manifest V3 / declarativeNetRequest）。",
   "permissions": [
     "declarativeNetRequest",
     "declarativeNetRequestFeedback",
+    "scripting",
     "storage"
   ],
+  "host_permissions": ["<all_urls>"],
   "background": {
     "service_worker": "background.js"
   },
