@@ -8,6 +8,8 @@ Manifest V3 の [`declarativeNetRequest`](https://developer.chrome.com/docs/exte
 - バッジに「そのタブでブロックした数」、ポップアップに「累計ブロック数」を表示
 - グローバル＋日本国内の主要な広告／計測ネットワーク 100 件以上をカバー
 - **Google 検索のスポンサー枠（検索結果ページに直接埋め込まれる広告）も非表示**にします
+- **ポップアンダー／強制リダイレクト系の広告ネットワーク（ExoClick など）にも対応**。
+  クリック時に勝手に別タブで開く広告や、広告サイトへの強制転送も遮断します
 
 ---
 
@@ -48,8 +50,13 @@ Manifest V3 の [`declarativeNetRequest`](https://developer.chrome.com/docs/exte
 | `tools/make_rules.py` | `rules.json` を生成するスクリプト |
 | `tools/make_icons.py` | アイコン PNG を生成するスクリプト |
 
-ページの最上位の表示（`main_frame`）はブロック対象から外しているため、
+ページの最上位の表示（`main_frame`）は原則ブロック対象から外しているため、
 広告ドメインが原因でページ全体が真っ白になることはありません。
+
+ただし、ポップアンダーや強制リダイレクトを出す**広告配信専用のネットワーク**
+（`tools/make_rules.py` の `POPUP_AD_DOMAINS`）だけは例外で、ページ遷移
+（`main_frame`）も含めて遮断します。これらのドメインを一般ユーザーが直接開く
+ことはないため、別タブ広告やリダイレクトを確実に止められます。
 
 ### Google 検索の広告について
 
@@ -68,7 +75,9 @@ Google 検索結果ページの「スポンサー / 広告」枠は、`google.co
 ## ブロック対象を追加・編集する
 
 ブロックしたいドメインは `tools/make_rules.py` の `AD_DOMAINS` リストに 1 行追記して、
-スクリプトを実行すると `rules.json` が再生成されます。
+スクリプトを実行すると `rules.json` が再生成されます。ポップアンダーや強制リダイレクトを
+出す「広告配信専用ドメイン」は、ページ遷移ごと止めたいので `POPUP_AD_DOMAINS` の方に
+追記してください。
 
 ```bash
 python3 tools/make_rules.py

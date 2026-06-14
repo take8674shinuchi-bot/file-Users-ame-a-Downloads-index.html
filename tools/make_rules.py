@@ -27,6 +27,10 @@ RESOURCE_TYPES = [
     "other",
 ]
 
+# ポップアップ/リダイレクト型の広告は別タブやページ遷移として開くため、
+# トップレベル遷移(main_frame)も含めて止める必要がある。
+ALL_RESOURCE_TYPES = ["main_frame", *RESOURCE_TYPES]
+
 # ||domain は当該ドメインとそのサブドメインに一致する(Adblock 構文の部分集合)。
 AD_DOMAINS = [
     # --- Google 系の広告/計測 ---
@@ -153,6 +157,41 @@ AD_URL_FILTERS = [
 AD_DOMAINS.remove("yimg.jp")
 AD_URL_FILTERS.append("||yjtag.yahoo.co.jp")  # Yahoo! JAPAN タグ計測
 
+# --- ポップアップ/リダイレクト型の広告ネットワーク ---
+# アダルト/海賊版系サイト(例: hitomi.la)で多用される、ポップアンダー(クリック
+# 時に別タブで開く広告)や強制リダイレクトを出すネットワーク。これらのドメインは
+# 広告配信専用で一般ユーザーが直接アクセスすることはないため、トップレベル遷移
+# (main_frame)も含めて遮断する。これにより、リンククリック時に勝手に開く別タブ
+# 広告や、ページが広告サイトへ飛ばされるリダイレクトも止められる。
+POPUP_AD_DOMAINS = [
+    # ExoClick 系(hitomi.la のポップアンダー/リダイレクトの主因)
+    "exoclick.com",
+    "exosrv.com",
+    "exdynsrv.com",
+    "realsrv.com",
+    "magsrv.com",
+    # その他の主要なポップアンダー/アダルト系広告ネットワーク
+    "juicyads.com",
+    "trafficstars.com",
+    "tsyndicate.com",
+    "popads.net",
+    "popadscdn.net",
+    "popcash.net",
+    "propellerads.com",
+    "onclkds.com",
+    "clickadu.com",
+    "hilltopads.net",
+    "ad-maven.com",
+    "plugrush.com",
+    "eroadvertising.com",
+    "trafficjunky.net",
+    "trafficforce.com",
+    "adnium.com",
+    "adspyglass.com",
+    "highperformanceformat.com",
+    "profitabledisplaynetwork.com",
+]
+
 OUT_PATH = os.path.join(os.path.dirname(__file__), os.pardir, "rules.json")
 
 
@@ -181,6 +220,20 @@ def build_rules():
                 "condition": {
                     "urlFilter": url_filter,
                     "resourceTypes": RESOURCE_TYPES,
+                },
+            }
+        )
+        rule_id += 1
+    # ポップアップ/リダイレクト広告は main_frame も含めて遮断する
+    for domain in POPUP_AD_DOMAINS:
+        rules.append(
+            {
+                "id": rule_id,
+                "priority": 1,
+                "action": {"type": "block"},
+                "condition": {
+                    "urlFilter": f"||{domain}^",
+                    "resourceTypes": ALL_RESOURCE_TYPES,
                 },
             }
         )
