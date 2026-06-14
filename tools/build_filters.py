@@ -83,6 +83,27 @@ CURATED_URL_FILTERS = [
     "||yjtag.yahoo.co.jp",
 ]
 
+# ポップアンダー/ポップアップを多用するアダルト系・ポップ広告網。
+# クリックで新規タブに広告ドメインを開く手口を止めるため、これらは
+# main_frame(ページ遷移)も含めて遮断する。EasyList には収録が少ない。
+POPUNDER_DOMAINS = [
+    # ExoClick
+    "exoclick.com", "exosrv.com", "exdynsrv.com", "realsrv.com", "ads-stats.com",
+    # TrafficStars
+    "trafficstars.com", "tsyndicate.com",
+    # JuicyAds / EroAdvertising / PlugRush
+    "juicyads.com", "juicyads.net", "ero-advertising.com", "plugrush.com",
+    # ポップ系ネットワーク
+    "popads.net", "popadscdn.net", "popcash.net",
+    "propellerads.com", "propu.sh", "propellerclick.com", "onclickads.net",
+    "adsterra.com", "adsterranet.com", "terraclicks.com",
+    "clickadu.com", "hilltopads.com", "hilltopads.net",
+    "ad-maven.com", "admngr.com",
+    # TrafficJunky / その他アダルト広告網
+    "trafficjunky.net", "trafficjunky.com", "trafficforce.com", "adnium.com",
+    "adxpansion.com", "adsupplyads.com", "adk2.com", "adk2x.com",
+]
+
 # 高信頼の要素非表示セレクタ(誤検知が少ないもの)。EasyList より前に置く。
 CURATED_SELECTORS = [
     # Google AdSense / GPT
@@ -153,48 +174,41 @@ def parse_selectors(lines):
     return out
 
 
+def _block_rule(rid, url_filter, block_main_frame):
+    cond = {"urlFilter": url_filter}
+    if not block_main_frame:
+        # 既定では最上位のページ遷移は止めない(ページが真っ白になるのを防ぐ)
+        cond["excludedResourceTypes"] = ["main_frame"]
+    return {"id": rid, "action": {"type": "block"}, "condition": cond}
+
+
 def build_rules():
     ads = parse_domains(fetch(EASYLIST["adservers"]))
     pop = parse_domains(fetch(EASYLIST["popups"]))
 
-    ordered = []
-    seen = set()
-    # キュレーション網を最優先(必ず収録される)
-    for d in CURATED_DOMAINS:
-        if d not in seen:
-            seen.add(d)
-            ordered.append(d)
-    # 残り枠を EasyList で補完
     budget = MAX_RULES - len(CURATED_URL_FILTERS)
-    for d in ads + pop:
-        if len(ordered) >= budget:
-            break
-        if d not in seen:
-            seen.add(d)
-            ordered.append(d)
-
     rules = []
-    rid = 1
-    for d in ordered:
-        rules.append({
-            "id": rid,
-            "action": {"type": "block"},
-            "condition": {
-                "urlFilter": f"||{d}^",
-                "excludedResourceTypes": ["main_frame"],
-            },
-        })
-        rid += 1
+    seen = set()
+
+    def add(domain, block_main_frame):
+        if domain in seen or len(rules) >= budget:
+            return
+        seen.add(domain)
+        rules.append(_block_rule(len(rules) + 1, f"||{domain}^", block_main_frame))
+
+    # 1) ポップ/アダルト広告網: 新規タブのポップアンダーも止めるため main_frame も遮断
+    for d in POPUNDER_DOMAINS:
+        add(d, block_main_frame=True)
+    # 2) 主要ネットワークのキュレーション(全サブドメイン)。main_frame は除外
+    for d in CURATED_DOMAINS:
+        add(d, block_main_frame=False)
+    # 3) 残り枠を EasyList で補完。main_frame は除外
+    for d in ads + pop:
+        add(d, block_main_frame=False)
+    # 4) パス指定のピンポイント遮断
     for uf in CURATED_URL_FILTERS:
-        rules.append({
-            "id": rid,
-            "action": {"type": "block"},
-            "condition": {
-                "urlFilter": uf,
-                "excludedResourceTypes": ["main_frame"],
-            },
-        })
-        rid += 1
+        rules.append(_block_rule(len(rules) + 1, uf, block_main_frame=False))
+
     return rules
 
 
