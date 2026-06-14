@@ -3036,5 +3036,29 @@
         "other"
       ]
     }
+  },
+  {
+    "id": 132,
+    "priority": 1,
+    "action": {
+      "type": "block"
+    },
+    "condition": {
+      "urlFilter": "utm_source=exoclick",
+      "resourceTypes": [
+        "main_frame",
+        "sub_frame",
+        "script",
+        "image",
+        "stylesheet",
+        "object",
+        "xmlhttprequest",
+        "ping",
+        "media",
+        "font",
+        "websocket",
+        "other"
+      ]
+    }
   }
 ]

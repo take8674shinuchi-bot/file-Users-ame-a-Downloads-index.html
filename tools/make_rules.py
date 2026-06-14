@@ -194,6 +194,17 @@ POPUP_AD_DOMAINS = [
     "mnaspm.com",
 ]
 
+# --- ポップアンダーの遷移先 URL を狙い撃ちするフィルタ ---
+# ExoClick 等のポップアンダーは、広告主サイト(その時々で変わる)へトラッキング
+# パラメータ付きで遷移する。遷移先ドメインを個別に追うとキリがないため、「広告
+# 由来であることを示すパラメータ」を含む遷移そのものを止める。これにより広告主が
+# 変わっても(例: candy.ai など)遮断できる。urlFilter は URL 内の部分一致。
+# 注: declarativeNetRequest では window.open 自体は止められないため、空の別タブは
+#     開くが、その中身(広告ページ)の読み込みはブロックされ表示されない。
+POPUP_URL_FILTERS = [
+    "utm_source=exoclick",  # ExoClick のポップアンダー/リダイレクト遷移
+]
+
 OUT_PATH = os.path.join(os.path.dirname(__file__), os.pardir, "rules.json")
 
 
@@ -235,6 +246,20 @@ def build_rules():
                 "action": {"type": "block"},
                 "condition": {
                     "urlFilter": f"||{domain}^",
+                    "resourceTypes": ALL_RESOURCE_TYPES,
+                },
+            }
+        )
+        rule_id += 1
+    # ポップアンダーの遷移先 URL(広告由来パラメータを含む)を main_frame ごと遮断
+    for url_filter in POPUP_URL_FILTERS:
+        rules.append(
+            {
+                "id": rule_id,
+                "priority": 1,
+                "action": {"type": "block"},
+                "condition": {
+                    "urlFilter": url_filter,
                     "resourceTypes": ALL_RESOURCE_TYPES,
                 },
             }

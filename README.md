@@ -59,6 +59,13 @@ Manifest V3 の [`declarativeNetRequest`](https://developer.chrome.com/docs/exte
 （`main_frame`）も含めて遮断します。これらのドメインを一般ユーザーが直接開く
 ことはないため、別タブ広告やリダイレクトを確実に止められます。
 
+ポップアンダーの**遷移先**が毎回別の広告主サイトに変わる場合（例: ExoClick が
+`candy.ai` などへ飛ばす）は、ドメインを個別に追わず、広告由来であることを示す
+URL パラメータ（`POPUP_URL_FILTERS`、例: `utm_source=exoclick`）を含む遷移を
+遮断します。なお `declarativeNetRequest` では `window.open` 自体は止められない
+ため、**空の別タブは開く**ことがありますが、その中身（広告ページ）の読み込みは
+ブロックされ表示されません。
+
 ### Google 検索の広告について
 
 Google 検索結果ページの「スポンサー / 広告」枠は、`google.com` 自身（検索結果と
