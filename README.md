@@ -45,6 +45,7 @@ Manifest V3 の [`declarativeNetRequest`](https://developer.chrome.com/docs/exte
 | `rules.json` | ブロック対象のルール（`declarativeNetRequest` 形式・自動生成） |
 | `background.js` | ON/OFF 切り替え・バッジ表示・累計集計を行う Service Worker |
 | `content/google.js` / `content/google.css` | Google 検索ページの広告枠を隠すコンテンツスクリプト |
+| `content/eab-toggle.js` / `content/kemono.css` | サイト別（kemono など）に広告枠を隠すコスメティックフィルタ（ON/OFF 連動の共通トグル＋サイト別 CSS） |
 | `popup.html` / `popup.css` / `popup.js` | アイコンクリックで開く操作パネル |
 | `icons/` | アイコン画像（16/32/48/128px） |
 | `tools/make_rules.py` | `rules.json` を生成するスクリプト |
@@ -69,6 +70,17 @@ Google 検索結果ページの「スポンサー / 広告」枠は、`google.co
 このため拡張機能には「Google 検索ページのデータの読み取り・変更」の権限が付きます
 （対象は `*.google.*` の `/search` ページのみ。Gmail やドライブなど他の Google
 サービスでは動作しません）。スクリプトはページ内で完結し、外部送信は行いません。
+
+### サイト別のコスメティックフィルタ（kemono など）
+
+一部のサイトは、通信を止めても広告枠やアフィリエイトリンクがページ内に残ります。
+これらは `content/eab-toggle.js`（ON/OFF 連動の共通トグル）＋ サイト別の CSS で
+表示側から取り除きます。現在は kemono（`kemono.cr` / `kemono.su` / `kemono.party`）の
+広告枠・アフィリエイトリンクに対応しています（`content/kemono.css`）。
+
+別サイトに対応したい場合は、CSS を 1 枚（`html.eab-on セレクタ { display: none !important; }`
+形式）追加し、`manifest.json` の `content_scripts` に「対象サイトの `matches`」と
+「`content/eab-toggle.js` ＋ その CSS」を 1 ブロック足すだけで増やせます。
 
 ---
 

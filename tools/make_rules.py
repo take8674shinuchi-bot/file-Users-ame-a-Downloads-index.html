@@ -190,6 +190,8 @@ POPUP_AD_DOMAINS = [
     "adspyglass.com",
     "highperformanceformat.com",
     "profitabledisplaynetwork.com",
+    # kemono(kemono.cr 等)で確認されたポップアンダー広告ドメイン
+    "mnaspm.com",
 ]
 
 OUT_PATH = os.path.join(os.path.dirname(__file__), os.pardir, "rules.json")

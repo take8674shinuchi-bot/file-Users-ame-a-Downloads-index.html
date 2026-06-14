@@ -1,0 +1,18 @@
+/* かんたん広告ブロッカー - kemono(kemono.cr / kemono.su / kemono.party)の
+ * ページ内に埋め込まれる広告枠・アフィリエイトリンクを隠すスタイル。
+ *
+ * これらのルールは <html> に "eab-on" クラスが付いている間だけ効く。
+ * クラスの付け外しは content/eab-toggle.js が拡張機能の ON/OFF と連動して行う。
+ *
+ * 実際の広告(ポップアンダー等)は tsyndicate.com / mnaspm.com などの通信を
+ * rules.json で遮断して止める。ここでは、その残骸として残る広告枠や、ページに
+ * 直接書き込まれるアフィリエイトリンクを表示側で取り除く。
+ * (uBlock Origin / uAssets #29635 で確認されたセレクタに準拠)
+ */
+
+html.eab-on .ad-container,
+html.eab-on .sidebar-extra-style.global-sidebar-entry-item,
+html.eab-on a[href*="theporndude.com"],
+html.eab-on a[href*="tsyndicate.com"] {
+  display: none !important;
+}

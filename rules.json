@@ -3012,5 +3012,29 @@
         "other"
       ]
     }
+  },
+  {
+    "id": 131,
+    "priority": 1,
+    "action": {
+      "type": "block"
+    },
+    "condition": {
+      "urlFilter": "||mnaspm.com^",
+      "resourceTypes": [
+        "main_frame",
+        "sub_frame",
+        "script",
+        "image",
+        "stylesheet",
+        "object",
+        "xmlhttprequest",
+        "ping",
+        "media",
+        "font",
+        "websocket",
+        "other"
+      ]
+    }
   }
 ]

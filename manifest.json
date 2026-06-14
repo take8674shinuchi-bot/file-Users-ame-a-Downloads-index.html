@@ -73,6 +73,16 @@
       "css": ["content/google.css"],
       "js": ["content/google.js"],
       "run_at": "document_start"
+    },
+    {
+      "matches": [
+        "*://*.kemono.cr/*",
+        "*://*.kemono.su/*",
+        "*://*.kemono.party/*"
+      ],
+      "css": ["content/kemono.css"],
+      "js": ["content/eab-toggle.js"],
+      "run_at": "document_start"
     }
   ],
   "icons": {
